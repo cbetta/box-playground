@@ -1,0 +1,11 @@
+{
+  "name": "playground",
+  "version": "1.0.0",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "jsonwebtoken": "^8.3.0",
+    "node-fetch": "^2.2.0",
+    "uuid": "^3.3.2"
+  }
+}
