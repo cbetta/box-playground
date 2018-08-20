@@ -3,7 +3,7 @@ import { SDK, ROOT_FOLDER } from '@box/sdk'
 
 // Allow for initializing the SDK from the config file exported from
 // the developer console
-const sdk = SDK.fromFile('config.json')
+const sdk = SDK.fromFile('../private_key.json')
 
 // Use more explicit language to initialize a client as the enterprise
 // and infer the enterprise ID from the config file unless specified

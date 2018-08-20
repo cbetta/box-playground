@@ -1,7 +1,7 @@
 const BoxSDK = require('box-node-sdk')
 const fs = require('fs')
 
-const config = JSON.parse(fs.readFileSync('config.json'))
+const config = JSON.parse(fs.readFileSync('private_key.json'))
 
 const sdk = new BoxSDK({
   clientID: config.boxAppSettings.clientID,

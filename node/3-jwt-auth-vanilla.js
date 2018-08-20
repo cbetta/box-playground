@@ -3,7 +3,7 @@ const crypto = require('crypto')
 const querystring = require('querystring')
 const https = require('https')
 
-const config = JSON.parse(fs.readFileSync('config.json'))
+const config = JSON.parse(fs.readFileSync('private_key.json'))
 
 // Requests an access token using JWT
 let requestAccessToken = function(callback) {
