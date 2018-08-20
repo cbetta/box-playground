@@ -4,6 +4,7 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
+    "box-node-sdk": "^1.20.0",
     "jsonwebtoken": "^8.3.0",
     "node-fetch": "^2.2.0",
     "uuid": "^3.3.2"
