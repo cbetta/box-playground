@@ -2,19 +2,10 @@ const BoxSDK = require('box-node-sdk')
 const fs = require('fs')
 
 const config = JSON.parse(fs.readFileSync('private_key.json'))
-
-const sdk = new BoxSDK({
-  clientID: config.boxAppSettings.clientID,
-  clientSecret: config.boxAppSettings.clientSecret,
-  appAuth: {
-    keyID: config.boxAppSettings.appAuth.publicKeyID,
-    privateKey: config.boxAppSettings.appAuth.privateKey,
-    passphrase: config.boxAppSettings.appAuth.passphrase
-  }
-})
+const sdk = BoxSDK.getPreconfiguredInstance(config)
 
 let fetch = async function () {
-  let serviceClient = sdk.getAppAuthClient('enterprise', config.enterpriseID)
+  let serviceClient = sdk.getAppAuthClient('enterprise')
   let users = await serviceClient.enterprise.getUsers()
   let user = users.entries[0]
 
