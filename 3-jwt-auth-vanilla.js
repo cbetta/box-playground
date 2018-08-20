@@ -1,4 +1,3 @@
-const jwt = require('jsonwebtoken')
 const fs = require('fs')
 const crypto = require('crypto')
 const querystring = require('querystring')
@@ -39,12 +38,7 @@ let generateBody = function() {
     "exp": Math.floor(Date.now() / 1000) + 45
   }
 
-  let assertion = jwt.sign(claims, {
-    key: config.boxAppSettings.appAuth.privateKey,
-    passphrase: config.boxAppSettings.appAuth.passphrase
-  }, {
-    algorithm: 'RS256'
-  })
+  let assertion = createJWT(claims, config.boxAppSettings.appAuth.privateKey, config.boxAppSettings.appAuth.passphrase)
 
   return querystring.stringify({
     grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
@@ -52,6 +46,22 @@ let generateBody = function() {
     client_id: config.boxAppSettings.clientID,
     client_secret: config.boxAppSettings.clientSecret
   })
+}
+
+// Signs the JWT
+let createJWT = function (claims, key, passphrase) {
+  let header = Buffer.from(JSON.stringify({
+    "alg": 'RS512',
+    "typ": "JWT"
+  })).toString('base64')
+
+  let payload = Buffer.from(JSON.stringify(claims)).toString('base64')
+  let sign = crypto.createSign('SHA512')
+  sign.write(`${header}.${payload}`)
+  sign.end()
+
+  let signature = sign.sign({ key, passphrase }, 'base64')
+  return `${header}.${payload}.${signature}`
 }
 
 // Fetches the first enterprise user
