@@ -1,4 +1,4 @@
-// Requires Standard application access
+// Requires Standard application access and a developer token
 const https = require('https')
 const fs = require('fs')
 

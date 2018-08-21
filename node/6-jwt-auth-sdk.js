@@ -1,5 +1,6 @@
 // Requires Enterprise application access
 // and Generate User Access Tokens feature
+// Authentication method should be "OAuth 2.0 with JWT (Server Authentication)"
 const BoxSDK = require('box-node-sdk')
 const fs = require('fs')
 

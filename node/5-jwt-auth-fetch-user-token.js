@@ -1,5 +1,6 @@
 // Requires Enterprise application access
 // and Generate User Access Tokens feature
+// Authentication method should be "OAuth 2.0 with JWT (Server Authentication)"
 const jwt = require('jsonwebtoken')
 const fs = require('fs')
 const uuid = require('uuid/v4')

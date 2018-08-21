@@ -1,4 +1,4 @@
-// Requires Standard application access
+// Requires Standard application access and a developer token
 const fetch = require('node-fetch')
 const fs = require('fs')
 

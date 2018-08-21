@@ -1,4 +1,4 @@
-// Requires OAuth 2 (not JWT) application access
+// Authentication method should be "Standard OAuth 2.0 (User Authentication)"
 const express = require('express')
 const app = express()
 const fs = require('fs')

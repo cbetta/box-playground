@@ -1,5 +1,6 @@
 // Requires Enterprise application access
 // and Perform Actions as Users feature
+// Authentication method should be "OAuth 2.0 with JWT (Server Authentication)"
 const fs = require('fs')
 const crypto = require('crypto')
 const querystring = require('querystring')
