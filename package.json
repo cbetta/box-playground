@@ -5,6 +5,7 @@
   "private": true,
   "dependencies": {
     "box-node-sdk": "^1.20.0",
+    "express": "^4.16.3",
     "jsonwebtoken": "^8.3.0",
     "node-fetch": "^2.2.0",
     "uuid": "^3.3.2"
