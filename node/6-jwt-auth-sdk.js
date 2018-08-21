@@ -1,3 +1,5 @@
+// Requires Enterprise application access
+// and Generate User Access Tokens feature
 const BoxSDK = require('box-node-sdk')
 const fs = require('fs')
 

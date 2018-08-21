@@ -1,3 +1,5 @@
+// Requires Enterprise application access
+// and Perform Actions as Users
 const jwt = require('jsonwebtoken')
 const fs = require('fs')
 const uuid = require('uuid/v4')

@@ -1,3 +1,5 @@
+// Requires Enterprise application access
+// and Perform Actions as Users feature
 const fs = require('fs')
 const crypto = require('crypto')
 const querystring = require('querystring')
@@ -39,7 +41,6 @@ let generateBody = function() {
   }
 
   let assertion = createJWT(claims, config.boxAppSettings.appAuth.privateKey, config.boxAppSettings.appAuth.passphrase)
-
   return querystring.stringify({
     grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
     assertion: assertion,

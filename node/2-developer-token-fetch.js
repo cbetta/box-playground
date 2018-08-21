@@ -1,3 +1,4 @@
+// Requires Standard application access
 const fetch = require('node-fetch')
 const fs = require('fs')
 
