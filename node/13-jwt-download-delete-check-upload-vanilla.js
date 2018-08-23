@@ -8,7 +8,6 @@ const uuid = require('uuid/v4')
 const https = require('https')
 const fetch = require('node-fetch')
 const FormData = require('form-data')
-var request = require('request')
 const config = JSON.parse(fs.readFileSync('private_key.json'))
 
 // Requests an access token using JWT for the service account
@@ -146,17 +145,16 @@ let downloadFile = function (access_token, file, callback) {
 }
 
 let deleteFile = function (access_token, file, callback) {
-  // // Delete file
-  // let request = https.request({
-  //   host: 'api.box.com',
-  //   path: `/2.0/files/${file.id}`,
-  //   method: 'DELETE',
-  //   headers: {
-  //     'Authorization': `Bearer ${access_token}`,
-  //   }
-  // }, callback)
-  // request.end()
-  callback()
+  // Delete file
+  let request = https.request({
+    host: 'api.box.com',
+    path: `/2.0/files/${file.id}`,
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${access_token}`,
+    }
+  }, callback)
+  request.end()
 }
 
 let preflightCheckFile = function(access_token, file, callback) {
