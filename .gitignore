@@ -3,5 +3,6 @@ private_key*.json
 developer_token.json
 oauth2_credentials.json
 node_modules
+user.png
 .vscode
 .DS_Store

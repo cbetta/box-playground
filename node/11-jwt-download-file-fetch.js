@@ -1,6 +1,7 @@
 // Requires Enterprise application access
 // and Perform Actions as Users
 // Authentication method should be "OAuth 2.0 with JWT (Server Authentication)"
+// Requires a file in the root folder
 const jwt = require('jsonwebtoken')
 const fs = require('fs')
 const uuid = require('uuid/v4')
@@ -56,7 +57,7 @@ let getFirstUser = function (access_token) {
 }
 
 // Fetches a folder using am access token
-let fetchFolderItems = function ({
+let getFirstFolderItem = function ({
   user_id,
   access_token
 }) {
@@ -66,33 +67,32 @@ let fetchFolderItems = function ({
       'As-User': user_id
     }
   }).then(res => res.json()).then((res) => {
-    let entries = res.entries
+    let files = res.entries.filter(entry => entry.type === 'file')
+    let file = files[0]
     return {
       access_token,
       user_id,
-      entries
+      file
     }
   })
 }
 
-let fetchFirstFile = function ({
+let downloadFirstFile = async function ({
     access_token,
     user_id,
-    entries
+    file
   }) {
-  let files = entries.filter(entry => entry.type === 'file')
-  let file_id = files[0].id
-  fetch(`https://api.box.com/2.0/files/${file_id}`, {
+  let buffer = await fetch(`https://api.box.com/2.0/files/${file.id}/content`, {
     headers: {
       'Authorization': `Bearer ${access_token}`,
       'As-User': user_id
     }
-  })
-  .then(res => res.json())
-  .then(console.dir)
-  .catch(console.log)
+  }).then(res => res.buffer())
+  
+  fs.writeFileSync(file.name, buffer)
+  console.log(`${file.name} downloaded`)
 }
 
 // Fetch the content of a user folder using JWT authentication
 // using popular libraries.
-requestAccessToken().then(getFirstUser).then(fetchFolderItems).then(fetchFirstFile)
+requestAccessToken().then(getFirstUser).then(getFirstFolderItem).then(downloadFirstFile)
