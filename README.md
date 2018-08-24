@@ -60,7 +60,7 @@ Then copy over the client ID and secret into a file called `oauth2_credentials.j
 
 ## Large files
 
-Some samples require a large file. Simply download the `50MB.zip` file from `https://www.thinkbroadband.com/download` and put it in your project root.
+Some samples require a large file. Simply download the `50MB.zip` file from [thinkbroadband.com/download](https://www.thinkbroadband.com/download) and put it in your project root.
 
 ## Running samples
 
