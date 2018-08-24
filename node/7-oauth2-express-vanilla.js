@@ -24,54 +24,52 @@ app.get('/', (_, response) => {
 
 // Redirect URL where the user is sent to after they 
 // allow access to their Box account
-app.get('/auth', (request, response) => {
-  getAccessToken(request.query.code, (access_token) => {
-    getUserInfo(access_token, (user) => {
-      response.send(`Hello ${user.name}`)
-    })
-  })
+app.get('/auth', async (request, response) => {
+  let accessToken = await getAccessToken(request.query.code)
+  let user = await getUserInfo(accessToken)
+  response.send(`Hello ${user.name}`)
 })
 
 // Exchanges a Code for a user's access token
-let getAccessToken = function(code, callback) {
-  let body = qs.stringify({
-    "grant_type": "authorization_code",
-    "code": code,
-    "client_id": credentials.clientID,
-    "client_secret": credentials.clientSecret
-  })
-
-  let request = https.request({
-    host: 'api.box.com',
-    path: '/oauth2/token',
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Content-Length': body.length
-    }
-  }, (response) => {
-    response.on('data', (data) => {
-      let { access_token } = JSON.parse(data)
-      callback(access_token)
+let getAccessToken = function(code) {
+  return new Promise((resolve, reject) => {
+    let body = qs.stringify({
+      "grant_type": "authorization_code",
+      "code": code,
+      "client_id": credentials.clientID,
+      "client_secret": credentials.clientSecret
     })
+
+    let request = https.request('https://api.box.com/oauth2/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': body.length
+      }
+    }, (response) => {
+      response.on('data', (data) => {
+        let { access_token } = JSON.parse(data)
+        resolve(access_token)
+      })
+    })
+
+    request.write(body)
+    request.end()
   })
-  request.write(body)
-  request.end()
 }
 
 // Uses the user's access token to fetch the user's profile info
-let getUserInfo = function (access_token, callback) {
-  https.get({
-    host: 'api.box.com',
-    path: '/2.0/users/me',
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${access_token}`
-    }
-  }, (response) => {
-    response.on('data', (data) => {
-      let user = JSON.parse(data)
-      callback(user)
+let getUserInfo = function (accessToken) {
+  return new Promise((resolve, reject) => {
+    https.get('https://api.box.com/2.0/users/me', {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`
+      }
+    }, (response) => {
+      response.on('data', (data) => {
+        let user = JSON.parse(data)
+        resolve(user)
+      })
     })
   })
 }
