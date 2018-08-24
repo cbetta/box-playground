@@ -6,26 +6,21 @@ const fs = require('fs')
 const uuid = require('uuid/v4')
 const fetch = require('node-fetch')
 
-// Wrap log requests
-require('promise-log')(Promise)
-
-const config = JSON.parse(fs.readFileSync('private_key.json'))
-
 // Requests an access token using JWT
-let requestAccessToken = function () {
+let requestAccessToken = function (config) {
   return fetch('https://api.box.com/oauth2/token', {
     method: 'POST',
     body: new URLSearchParams({
       grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-      assertion: generateAssertion(),
+      assertion: generateAssertion(config),
       client_id: config.boxAppSettings.clientID,
       client_secret: config.boxAppSettings.clientSecret
     })
-  }).then(res => res.json()).log().then(token => token.access_token)
+  }).then(res => res.json()).then(token => token.access_token)
 }
 
 // Generates the JWT assertion
-let generateAssertion = function () {
+let generateAssertion = function (config) {
   let claims = {
     "iss": config.boxAppSettings.clientID,
     "sub": config.enterpriseID,
@@ -44,27 +39,35 @@ let generateAssertion = function () {
 }
 
 // Fetches the first enterprise user
-let getFirstUser = function (access_token) {
+let getFirstUser = function (accessToken) {
   return fetch('https://api.box.com/2.0/users', {
     headers: {
-      'Authorization': `Bearer ${access_token}`
+      'Authorization': `Bearer ${accessToken}`
     }
-  }).then(res => res.json()).log().then(users => {
-    let user_id = users.entries[0].id
-    return { user_id, access_token }
   })
+  .then(res => res.json())
+  .then(users => users.entries[0])
 }
 
 // Fetches a folder using am access token
-let fetchFolder = function ({ user_id, access_token }) {
-  fetch('https://api.box.com/2.0/folders/0', {
+let fetchFolder = function (accessToken, user) {
+  return fetch('https://api.box.com/2.0/folders/0', {
     headers: {
-      'Authorization': `Bearer ${access_token}`,
-      'As-User': user_id
+      'Authorization': `Bearer ${accessToken}`,
+      'As-User': user.id
     }
-  }).then(res => res.json()).log()
+  }).then(res => res.json())
 }
 
 // Fetch the content of a user folder using JWT authentication
 // using popular libraries.
-requestAccessToken().then(getFirstUser).then(fetchFolder)
+let start = async () => {
+  const config = JSON.parse(fs.readFileSync('private_key.json'))
+
+  let accessToken = await requestAccessToken(config)
+  let user = await getFirstUser(accessToken)
+  let folder = await fetchFolder(accessToken, user)
+  console.dir(folder, { depth: 5 })
+}
+
+start()

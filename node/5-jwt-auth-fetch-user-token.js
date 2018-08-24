@@ -6,39 +6,38 @@ const fs = require('fs')
 const uuid = require('uuid/v4')
 const fetch = require('node-fetch')
 
-const config = JSON.parse(fs.readFileSync('private_key.json'))
-
-// Wrap log requests
-require('promise-log')(Promise)
-
 // Requests an access token using JWT for the service account
-let requestServiceAccountAccessToken = function () {
+let requestServiceAccountAccessToken = function (config) {
   return fetch('https://api.box.com/oauth2/token', {
     method: 'POST',
     body: new URLSearchParams({
       grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-      assertion: generateServiceAccountAssertion(),
+      assertion: generateServiceAccountAssertion(config),
       client_id: config.boxAppSettings.clientID,
       client_secret: config.boxAppSettings.clientSecret
     })
-  }).then(res => res.json()).then(token => token.access_token)
+  })
+  .then(res => res.json())
+  .then(token => token.access_token)
 }
 
 // Requests an access token using JWT for the user account
-let requestUserAccountAccessToken = function(user_id) {
+let requestUserAccountAccessToken = function (config, user) {
   return fetch('https://api.box.com/oauth2/token', {
     method: 'POST',
     body: new URLSearchParams({
       grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-      assertion: generateUserAccountAssertion(user_id),
+      assertion: generateUserAccountAssertion(config, user),
       client_id: config.boxAppSettings.clientID,
       client_secret: config.boxAppSettings.clientSecret
     })
-  }).then(res => res.json()).then(token => token.access_token)
+  })
+  .then(res => res.json())
+  .then(token => token.access_token)
 }
 
 // Generates the JWT assertion for a service account 
-let generateServiceAccountAssertion = function () {
+let generateServiceAccountAssertion = function (config) {
   let claims = {
     "iss": config.boxAppSettings.clientID,
     "sub": config.enterpriseID,
@@ -57,10 +56,10 @@ let generateServiceAccountAssertion = function () {
 }
 
 // Generates the JWT assertion for a user account 
-let generateUserAccountAssertion = function (user_id) {
+let generateUserAccountAssertion = function (config, user) {
   let claims = {
     "iss": config.boxAppSettings.clientID,
-    "sub": user_id,
+    "sub": user.id,
     "box_sub_type": "user",
     "aud": "https://api.box.com/oauth2/token",
     "jti": uuid(),
@@ -76,28 +75,36 @@ let generateUserAccountAssertion = function (user_id) {
 }
 
 // Fetches the first enterprise user
-let getFirstUser = function (access_token) {
+let getFirstUser = function (accessToken) {
   return fetch('https://api.box.com/2.0/users', {
     headers: {
-      'Authorization': `Bearer ${access_token}`
+      'Authorization': `Bearer ${accessToken}`
     }
-  }).then(res => res.json()).then(users => {
-    return users.entries[0].id
   })
+  .then(res => res.json())
+  .then(users => users.entries[0])
 }
 
 // Fetches a folder using am access token
-let fetchFolder = function (access_token) {
-  fetch('https://api.box.com/2.0/folders/0', {
+let fetchFolder = function (accessToken) {
+  return fetch('https://api.box.com/2.0/folders/0', {
     headers: {
-      'Authorization': `Bearer ${access_token}`,
+      'Authorization': `Bearer ${accessToken}`,
     }
-  }).then(res => res.json()).log()
+  })
+  .then(res => res.json())
 }
 
 // Fetch the content of a user folder using JWT authentication
 // using popular libraries.
-requestServiceAccountAccessToken()
-  .then(getFirstUser)
-  .then(requestUserAccountAccessToken)
-  .then(fetchFolder)
+let start = async () => {
+  let config = JSON.parse(fs.readFileSync('private_key.json'))
+
+  let serviceAccountAccessToken = await requestServiceAccountAccessToken(config)
+  let user = await getFirstUser(serviceAccountAccessToken)
+  let userAccessToken = await requestUserAccountAccessToken(config, user)
+  let folder = await fetchFolder(userAccessToken)
+  console.dir(folder, { depth: 5 })
+}
+
+start()
