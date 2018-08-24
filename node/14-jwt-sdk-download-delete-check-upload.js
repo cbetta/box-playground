@@ -8,7 +8,7 @@ const fs = require('fs')
 const config = JSON.parse(fs.readFileSync('private_key.json'))
 const sdk = BoxSDK.getPreconfiguredInstance(config)
 
-let fetch = async function () {
+let start = async function () {
   // get the first user for this enterprise
   let serviceClient = sdk.getAppAuthClient('enterprise')
   let users = await serviceClient.enterprise.getUsers()
@@ -42,4 +42,4 @@ let fetch = async function () {
   console.log(`${file.name} uploaded - file ${file.id}`)
 }
 
-fetch()
+start()

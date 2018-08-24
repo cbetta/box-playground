@@ -58,7 +58,9 @@ Then copy over the client ID and secret into a file called `oauth2_credentials.j
 
 > Make sure your `redirectUrl` matches your app's specified redirect URL on the developer console. Make sure to set this to `http://localhost:3000/auth` for these samples.
 
-###
+## Large files
+
+Some samples require a large file. Simply download the `50MB.zip` file from `https://www.thinkbroadband.com/download` and put it in your project root.
 
 ## Running samples
 
