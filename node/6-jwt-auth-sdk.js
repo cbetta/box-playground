@@ -7,13 +7,13 @@ const fs = require('fs')
 const config = JSON.parse(fs.readFileSync('private_key.json'))
 const sdk = BoxSDK.getPreconfiguredInstance(config)
 
-let fetch = async function () {
+;(async () => {
   let serviceClient = sdk.getAppAuthClient('enterprise')
   let users = await serviceClient.enterprise.getUsers()
   let user = users.entries[0]
 
   let userClient = sdk.getAppAuthClient('user', user.id)
-  return userClient.folders.get(0)
-}
-
-fetch().then(console.log)
+  let folder = await userClient.folders.get(0)
+  
+  console.dir(folder, { depth: 3 })
+})()

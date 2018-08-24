@@ -3,7 +3,8 @@ private_key*.json
 developer_token.json
 oauth2_credentials.json
 node_modules
-user.png
+*.png
+*.jpg
 .vscode
 .DS_Store
 50MB.zip

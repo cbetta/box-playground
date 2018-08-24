@@ -61,13 +61,11 @@ let fetchFolder = function (accessToken, user) {
 
 // Fetch the content of a user folder using JWT authentication
 // using popular libraries.
-let start = async () => {
+;(async () => {
   const config = JSON.parse(fs.readFileSync('private_key.json'))
 
   let accessToken = await requestAccessToken(config)
   let user = await getFirstUser(accessToken)
   let folder = await fetchFolder(accessToken, user)
   console.dir(folder, { depth: 5 })
-}
-
-start()
+})()

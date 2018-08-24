@@ -7,8 +7,6 @@ const fs = require('fs')
 const uuid = require('uuid/v4')
 const fetch = require('node-fetch')
 
-require('promise-log')(Promise)
-
 // Requests an access token using JWT
 let requestAccessToken = function (config) {
   return fetch('https://api.box.com/oauth2/token', {
@@ -80,12 +78,10 @@ let download = async function (accessToken, user, file) {
 
 // Fetch the content of a user folder using JWT authentication
 // using popular libraries.
-let start = async () => {
+;(async () => {
   let config = JSON.parse(fs.readFileSync('private_key.json'))
   let accessToken = await requestAccessToken(config)
   let user = await getFirstUser(accessToken)
   let file = await getFirstFile(accessToken, user)
   download(accessToken, user, file)
-}
-
-start()
+})()

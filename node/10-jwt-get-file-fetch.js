@@ -58,8 +58,8 @@ let fetchFolderItems = function (accessToken, user) {
       'As-User': user.id
     }
   })
-  .then(res => res.json())
-  .then((res) => res.entries)
+  .then(res => res.json())  
+  .then(res => res.entries)
 }
 
 let fetchFirstFile = function (accessToken, user, entries) {
@@ -77,15 +77,11 @@ let fetchFirstFile = function (accessToken, user, entries) {
 
 // Fetch the content of a user folder using JWT authentication
 // using popular libraries.
-requestAccessToken().then(getFirstUser).then(fetchFolderItems).then(fetchFirstFile)
-
-let start = async () => {
+;(async () => {
   let config = JSON.parse(fs.readFileSync('private_key.json'))
   let accessToken = await requestAccessToken(config)
   let user = await getFirstUser(accessToken)
   let entries = await fetchFolderItems(accessToken, user)
   let file = await fetchFirstFile(accessToken, user, entries)
   console.dir(file)
-}
-
-start()
+})()
