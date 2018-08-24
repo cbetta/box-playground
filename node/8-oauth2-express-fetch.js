@@ -40,7 +40,9 @@ let getAccessToken = function(code) {
       client_id: credentials.clientID,
       client_secret: credentials.clientSecret
     })
-  }).then(res => res.json()).then(token => token.access_token)
+  })
+  .then(res => res.json())
+  .then(token => token.access_token)
 }
 
 // Uses the user's access token to fetch the user's profile info
@@ -49,7 +51,8 @@ let getUserInfo = function (access_token) {
     headers: {
       'Authorization': `Bearer ${access_token}`
     }
-  }).then(res => res.json())
+  })
+  .then(res => res.json())
 }
 
 // Starts the express server

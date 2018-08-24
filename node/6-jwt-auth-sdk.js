@@ -7,9 +7,6 @@ const fs = require('fs')
 const config = JSON.parse(fs.readFileSync('private_key.json'))
 const sdk = BoxSDK.getPreconfiguredInstance(config)
 
-// Wrap log requests
-require('promise-log')(Promise)
-
 let fetch = async function () {
   let serviceClient = sdk.getAppAuthClient('enterprise')
   let users = await serviceClient.enterprise.getUsers()
@@ -19,4 +16,4 @@ let fetch = async function () {
   return userClient.folders.get(0)
 }
 
-fetch().log()
+fetch().then(console.log)

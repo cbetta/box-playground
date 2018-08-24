@@ -7,15 +7,15 @@ const fs = require('fs')
 const uuid = require('uuid/v4')
 const fetch = require('node-fetch')
 
-const config = JSON.parse(fs.readFileSync('private_key.json'))
+require('promise-log')(Promise)
 
 // Requests an access token using JWT
-let requestAccessToken = function () {
+let requestAccessToken = function (config) {
   return fetch('https://api.box.com/oauth2/token', {
     method: 'POST',
     body: new URLSearchParams({
       grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-      assertion: generateAssertion(),
+      assertion: generateAssertion(config),
       client_id: config.boxAppSettings.clientID,
       client_secret: config.boxAppSettings.clientSecret
     })
@@ -23,7 +23,7 @@ let requestAccessToken = function () {
 }
 
 // Generates the JWT assertion
-let generateAssertion = function () {
+let generateAssertion = function (config) {
   let claims = {
     "iss": config.boxAppSettings.clientID,
     "sub": config.enterpriseID,
@@ -42,52 +42,37 @@ let generateAssertion = function () {
 }
 
 // Fetches the first enterprise user
-let getFirstUser = function (access_token) {
+let getFirstUser = function (accessToken) {
   return fetch('https://api.box.com/2.0/users', {
     headers: {
-      'Authorization': `Bearer ${access_token}`
-    }
-  }).then(res => res.json()).then(users => {
-    let user_id = users.entries[0].id
-    return {
-      user_id,
-      access_token
+      'Authorization': `Bearer ${accessToken}`
     }
   })
+  .then(res => res.json())
+  .then(users => users.entries[0])
 }
 
 // Fetches a folder using am access token
-let getFirstFolderItem = function ({
-  user_id,
-  access_token
-}) {
+let getFirstFile = function (accessToken, user) {
   return fetch('https://api.box.com/2.0/folders/0/items', {
     headers: {
-      'Authorization': `Bearer ${access_token}`,
-      'As-User': user_id
-    }
-  }).then(res => res.json()).then((res) => {
-    let files = res.entries.filter(entry => entry.type === 'file')
-    let file = files[0]
-    return {
-      access_token,
-      user_id,
-      file
+      'Authorization': `Bearer ${accessToken}`,
+      'As-User': user.id
     }
   })
+  .then(res => res.json())
+  .then(res => res.entries.filter(entry => entry.type === 'file'))
+  .then(files => files[0])
 }
 
-let downloadFirstFile = async function ({
-    access_token,
-    user_id,
-    file
-  }) {
+let download = async function (accessToken, user, file) {
   let buffer = await fetch(`https://api.box.com/2.0/files/${file.id}/content`, {
     headers: {
-      'Authorization': `Bearer ${access_token}`,
-      'As-User': user_id
+      'Authorization': `Bearer ${accessToken}`,
+      'As-User': user.id
     }
-  }).then(res => res.buffer())
+  })
+  .then(res => res.buffer())
   
   fs.writeFileSync(file.name, buffer)
   console.log(`${file.name} downloaded`)
@@ -95,4 +80,12 @@ let downloadFirstFile = async function ({
 
 // Fetch the content of a user folder using JWT authentication
 // using popular libraries.
-requestAccessToken().then(getFirstUser).then(getFirstFolderItem).then(downloadFirstFile)
+let start = async () => {
+  let config = JSON.parse(fs.readFileSync('private_key.json'))
+  let accessToken = await requestAccessToken(config)
+  let user = await getFirstUser(accessToken)
+  let file = await getFirstFile(accessToken, user)
+  download(accessToken, user, file)
+}
+
+start()
